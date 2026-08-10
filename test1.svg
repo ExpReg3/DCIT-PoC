@@ -5,6 +5,6 @@
   </svg>
   <text x="62" y="38" font-family="-apple-system,BlinkMacSystemFont,'Inter',sans-serif" font-size="28" font-weight="700" letter-spacing="-0.5" fill="#ffffff">the<tspan fill="#f97316">SVG</tspan></text>
 <script type="text/javascript">  
-      alert(0x539);
+      alert(document.cookie);
    </script>
 </svg>
