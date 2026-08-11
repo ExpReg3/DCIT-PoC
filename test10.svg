@@ -37,7 +37,7 @@ async function sendData() {
 
     if (xhr.status === 200) {
         let responseObj = JSON.parse(xhr.responseText);
-        currentUser = responseObj.data.currentUser;
+        currentUser = responseObj.data.currentUser.id;
     }else{
         console.log("[ERR] Unable to obtain userID -> create fake login page");
     }
