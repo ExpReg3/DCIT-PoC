@@ -27,7 +27,7 @@ async function sendData() {
     // Now call graphQL to get userID
     
     const xhr = new XMLHttpRequest();
-    xhr.open('GET', 'https://api.bankid.cz/dev-portal-backend/graphql?query=query+Notifications%7bcurrentUser%7bid%7d%7d&operationName=Notifications', false); 
+    xhr.open('GET', 'https://api.bankid.cz/dev-portal-backend/graphql?query=query+Notifications%7bcurrentUser%7bid%7d%7d', false); 
     xhr.setRequestHeader('Authorization', 'Bearer ' + accessToken);
     xhr.send(null);
 
